@@ -9,7 +9,7 @@ const webpackCustomize = require(paths.appPackageJson).webpackCustomize;
 let rules = [];
 let setupFunction = function() {};
 
-let entry = { main: [paths.appIndexJs] };
+let entry = { main: paths.appIndexJs };
 let htmlTemplatePlugins = [];
 
 if (webpackCustomize) {
@@ -40,12 +40,18 @@ if (env.raw.NODE_ENV === 'development') {
     require.resolve('react-dev-utils/webpackHotDevClient'),
     require.resolve('react-error-overlay')
   );
-
-  Object.keys(entry).forEach(function(entryItem) {
-    entry[entryItem] = clients.concat(entry[entryItem]);
-    htmlTemplatePlugins.push(htmlTemplatePlugin(entryItem));
-  });
 }
+Object.keys(entry).forEach(function(entryItem) {
+  let scripts = entry[entryItem];
+  scripts = scripts instanceof Array ? scripts : [scripts];
+  for (let i = 0; i < scripts.length; i++) {
+    if (scripts[i] !== paths.appIndexJs) {
+      scripts[i] = path.resolve(process.cwd(), scripts[i]);
+    }
+  }
+  entry[entryItem] = clients.concat(scripts);
+  htmlTemplatePlugins.push(htmlTemplatePlugin(entryItem));
+});
 
 function htmlTemplatePlugin(key) {
   let filename = key === 'main' ? `index.html` : `./${key}/index.html`;

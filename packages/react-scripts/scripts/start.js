@@ -45,7 +45,21 @@ const useYarn = fs.existsSync(paths.yarnLockFile);
 const isInteractive = process.stdout.isTTY;
 
 // Warn and crash if required files are missing
-if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
+let files = [];
+Object.values(config.entry).forEach(function(scripts) {
+  if (scripts) {
+    scripts.forEach(function(script) {
+      if (script.indexOf('node_modules') === -1) {
+        files.push(script);
+      }
+    });
+  } else {
+    console.log(chalk.red('The entry file must be configured.'));
+    process.exit(1);
+  }
+});
+
+if (!checkRequiredFiles([paths.appHtml, ...files])) {
   process.exit(1);
 }
 
