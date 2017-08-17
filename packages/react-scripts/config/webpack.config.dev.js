@@ -31,7 +31,7 @@ const publicUrl = '';
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
 
-const { entry, plugins, rules } = require('./webpack.customize');
+const { entry, plugins, rules, externals } = require('./webpack.customize');
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
@@ -61,6 +61,7 @@ module.exports = {
     devtoolModuleFilenameTemplate: info =>
       path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
   },
+  externals,
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
     // We placed these paths second because we want `node_modules` to "win"

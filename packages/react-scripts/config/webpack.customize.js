@@ -4,32 +4,34 @@ const path = require('path');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
 const env = getClientEnvironment('');
-const webpackCustomize = require(paths.appPackageJson).webpackCustomize;
+const webpack = require(paths.appPackageJson).webpack;
 
 let rules = [];
 let setupFunction = function() {};
+let externals = webpack.externals || {};
 
 let entry = { main: paths.appIndexJs };
 let htmlTemplatePlugins = [];
 
-if (webpackCustomize) {
-  if (
-    webpackCustomize.lessEnable === 'true' ||
-    webpackCustomize.lessEnable === true
-  ) {
-    rules.push({
-      test: /\.less$/,
-      use: ['style-loader', 'css-loader', 'less-loader'],
+if (webpack) {
+  if (webpack.module && webpack.module.rules) {
+    webpack.module.rules.forEach(function(loader) {
+      if (loader === 'less') {
+        rules.push({
+          test: /\.less$/,
+          use: ['style-loader', 'css-loader', 'less-loader'],
+        });
+      }
     });
   }
-  if (webpackCustomize.devServerSetup) {
+  if (webpack.devServer && webpack.devServer.setup) {
     setupFunction = require(path.resolve(
       process.cwd(),
-      webpackCustomize.devServerSetup
+      webpack.devServer.setup
     ));
   }
-  if (webpackCustomize.entry) {
-    entry = webpackCustomize.entry;
+  if (webpack.entry) {
+    entry = webpack.entry;
   }
 }
 
@@ -81,4 +83,5 @@ module.exports = {
   plugins: htmlTemplatePlugins,
   rules: rules,
   setupFunction: setupFunction,
+  externals: externals,
 };
