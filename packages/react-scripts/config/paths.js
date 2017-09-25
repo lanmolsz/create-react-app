@@ -48,10 +48,23 @@ function getServedPath(appPackageJson) {
   return ensureSlash(servedUrl, true);
 }
 
+let buildDist = 'build';
+let linkedPath = '../../build';
+for (let i = 2; i < process.argv.length; i++) {
+  let indexOf = process.argv[i].indexOf('--path=');
+  if (indexOf !== -1) {
+    let dist = process.argv[i].substring(indexOf + 7);
+    if (dist) {
+      buildDist = dist;
+      linkedPath = `../../${buildDist}`;
+    }
+  }
+}
+
 // config after eject: we're in ./config/
 module.exports = {
   dotenv: resolveApp('.env'),
-  appBuild: resolveApp('build'),
+  appBuild: resolveApp(buildDist),
   appPublic: resolveApp('public'),
   appHtml: resolveApp('public/index.html'),
   appIndexJs: resolveApp('src/index.js'),
@@ -71,7 +84,7 @@ const resolveOwn = relativePath => path.resolve(__dirname, '..', relativePath);
 module.exports = {
   dotenv: resolveApp('.env'),
   appPath: resolveApp('.'),
-  appBuild: resolveApp('build'),
+  appBuild: resolveApp(buildDist),
   appPublic: resolveApp('public'),
   appHtml: resolveApp('public/index.html'),
   appIndexJs: resolveApp('src/index.js'),
@@ -101,7 +114,7 @@ if (
   module.exports = {
     dotenv: resolveOwn('template/.env'),
     appPath: resolveApp('.'),
-    appBuild: resolveOwn('../../build'),
+    appBuild: resolveOwn(linkedPath),
     appPublic: resolveOwn('template/public'),
     appHtml: resolveOwn('template/public/index.html'),
     appIndexJs: resolveOwn('template/src/index.js'),
